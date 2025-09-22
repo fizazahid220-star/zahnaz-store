@@ -8,9 +8,10 @@ export function CartProvider({children}){
       if(raw) setCart(JSON.parse(raw))
     } catch(e){}
   },[])
-  useEffect(()=> {
-    try{ localStorage.setItem('z_cart', JSON.stringify(cart)) }catch(e){}
-  },[cart])
+  useEffect(() => {
+  localStorage.setItem("z_orders", JSON.stringify(cart))
+}, [cart])
+
   const addToCart = (p) => setCart(prev=>[...prev,p])
   const removeFromCart = (idx) => setCart(prev=> prev.filter((_,i)=> i!==idx))
   const clearCart = ()=> setCart([])
