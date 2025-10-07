@@ -7,14 +7,11 @@ export default function App({ Component, pageProps }) {
     <CartProvider>
       <>
         <Head>
-          {/* Website ka title */}
           <title>Zahnaz Store</title>
-
-          {/* Favicon (logo) */}
-          <link rel="icon" href="/apple-touch-icon.png" />
-          
-          {/* Agar favicon.ico use karna ho to upar ke href ko "/favicon.ico" kar do */}
+          {/* Make sure your file path is correct */}
+          <link rel="icon" type="image/png" href="/images/logo.png" />
         </Head>
+
         <Component {...pageProps} />
       </>
     </CartProvider>
