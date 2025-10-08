@@ -26,16 +26,24 @@ export default function Checkout() {
         }),
       })
 
-      const data = await res.json()
+      const text = await res.text()
+
+      // 🧠 check if response is HTML (means not a valid API response)
+      if (text.startsWith("<!DOCTYPE")) {
+        throw new Error("API route not found (HTML page returned instead of JSON)")
+      }
+
+      const data = JSON.parse(text)
 
       if (data.success) {
         alert("✅ Order placed successfully!")
         clearCart()
         router.push("/my-order")
       } else {
-        alert("❌ Error placing order: " + data.error)
+        alert("❌ Error placing order: " + (data.error || "Unknown error"))
       }
     } catch (err) {
+      console.error("⚠️ Order placement failed:", err)
       alert("⚠️ Something went wrong: " + err.message)
     }
   }
