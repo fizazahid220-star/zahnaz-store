@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Order from "../../lib/models/order";
 
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
@@ -8,23 +9,6 @@ const connectDB = async () => {
   });
 };
 
-// Schema
-const OrderSchema = new mongoose.Schema(
-  {
-    name: String,
-    phone: String,
-    address: String,
-    method: String,
-    items: Array,
-    price: Number,
-  },
-  { timestamps: true }
-);
-
-// Model (reuse if exists)
-const Order = mongoose.models.Order || mongoose.model("Order", OrderSchema);
-
-// API Handler
 export default async function handler(req, res) {
   await connectDB();
 
@@ -40,7 +24,11 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     try {
-      const orders = await Order.find().sort({ createdAt: -1 });
+      const { phone } = req.query; // phone ke basis pe orders filter
+      let query = {};
+      if (phone) query.phone = phone;
+
+      const orders = await Order.find(query).sort({ createdAt: -1 });
       return res.status(200).json({ success: true, orders });
     } catch (err) {
       console.error("Get Orders Error:", err);

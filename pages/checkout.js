@@ -1,16 +1,21 @@
-import Header from "../components/Header"
-import { useCart } from "../components/cartContext"
-import { useState } from "react"
-import { useRouter } from "next/router"
+import Header from "../components/Header";
+import { useCart } from "../components/cartContext";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Checkout() {
-  const { cart, clearCart } = useCart()
-  const router = useRouter()
-  const [form, setForm] = useState({ name: "", phone: "", address: "", method: "cod" })
-  const total = cart.reduce((s, i) => s + i.price, 0)
+  const { cart, clearCart } = useCart();
+  const router = useRouter();
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    method: "cod",
+  });
+  const total = cart.reduce((s, i) => s + i.price, 0);
 
   const submit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
       const res = await fetch("/api/order", {
@@ -24,65 +29,65 @@ export default function Checkout() {
           items: cart,
           price: total,
         }),
-      })
+      });
 
-      const text = await res.text()
-
-      // 🧠 check if response is HTML (means not a valid API response)
-      if (text.startsWith("<!DOCTYPE")) {
-        throw new Error("API route not found (HTML page returned instead of JSON)")
-      }
-
-      const data = JSON.parse(text)
+      const data = await res.json();
 
       if (data.success) {
-        alert("✅ Order placed successfully!")
-        clearCart()
-        router.push("/my-order")
+        localStorage.setItem("userPhone", form.phone); // save phone for filtering
+        alert("✅ Order placed successfully!");
+        clearCart();
+        router.push("/my-order");
       } else {
-        alert("❌ Error placing order: " + (data.error || "Unknown error"))
+        alert("❌ Error placing order: " + data.error);
       }
     } catch (err) {
-      console.error("⚠️ Order placement failed:", err)
-      alert("⚠️ Something went wrong: " + err.message)
+      console.error("⚠️ Something went wrong:", err);
+      alert("⚠️ " + err.message);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      <main className="container py-10">
-        <h2 className="text-2xl font-bold">Checkout</h2>
-        <form className="mt-6 space-y-4" onSubmit={submit}>
+      <main className="container mx-auto py-10 px-4">
+        <h2 className="text-3xl font-bold mb-6 text-center">Checkout</h2>
+        <form
+          className="max-w-lg mx-auto bg-gray-900 p-6 rounded-lg shadow-lg space-y-4"
+          onSubmit={submit}
+        >
           <div>
-            <label className="block text-sm">Full name</label>
+            <label className="block text-sm mb-1">Full Name</label>
             <input
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full p-2 rounded bg-gray-800"
+              placeholder="Enter your name"
             />
           </div>
           <div>
-            <label className="block text-sm">Phone</label>
+            <label className="block text-sm mb-1">Phone</label>
             <input
               required
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               className="w-full p-2 rounded bg-gray-800"
+              placeholder="03XXXXXXXXX"
             />
           </div>
           <div>
-            <label className="block text-sm">Address</label>
+            <label className="block text-sm mb-1">Address</label>
             <textarea
               required
               value={form.address}
               onChange={(e) => setForm({ ...form, address: e.target.value })}
               className="w-full p-2 rounded bg-gray-800"
+              placeholder="House No., Street, City"
             />
           </div>
           <div>
-            <label className="block text-sm">Payment method</label>
+            <label className="block text-sm mb-1">Payment Method</label>
             <select
               value={form.method}
               onChange={(e) => setForm({ ...form, method: e.target.value })}
@@ -93,13 +98,14 @@ export default function Checkout() {
               <option value="jazzcash">JazzCash</option>
             </select>
           </div>
-          <div>
-            <button className="btn" type="submit">
-              Place Order - PKR {total}
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full bg-yellow-500 text-black font-semibold py-3 rounded hover:bg-yellow-400 transition"
+          >
+            Place Order - PKR {total}
+          </button>
         </form>
       </main>
     </div>
-  )
+  );
 }

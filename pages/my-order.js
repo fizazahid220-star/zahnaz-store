@@ -3,15 +3,19 @@ import Link from "next/link";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
+  const [phone, setPhone] = useState("");
 
   useEffect(() => {
+    const savedPhone = localStorage.getItem("userPhone");
+    setPhone(savedPhone);
+
     async function fetchOrders() {
-      const res = await fetch("/api/order");
+      if (!savedPhone) return;
+      const res = await fetch(`/api/order?phone=${savedPhone}`);
       const data = await res.json();
-      if (data.success) {
-        setOrders(data.orders);
-      }
+      if (data.success) setOrders(data.orders);
     }
+
     fetchOrders();
   }, []);
 
@@ -19,6 +23,12 @@ export default function Orders() {
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-center">🛍 My Orders</h1>
+
+        {!phone && (
+          <p className="text-center text-gray-400 mb-4">
+            Please place an order first to view your order history.
+          </p>
+        )}
 
         {orders.length === 0 ? (
           <p className="text-center text-gray-400">No orders yet.</p>
@@ -36,12 +46,12 @@ export default function Orders() {
                 <p className="text-sm text-gray-500 mt-1 capitalize">
                   Method: {item.method || "COD"}
                 </p>
+                <p className="text-sm text-gray-500">Phone: {item.phone}</p>
               </li>
             ))}
           </ul>
         )}
 
-        {/* 🏠 Stylish Home Button */}
         <div className="text-center mt-10">
           <Link
             href="/"
