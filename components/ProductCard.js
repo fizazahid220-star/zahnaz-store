@@ -1,14 +1,21 @@
 import { useCart } from "./cartContext"
+import { useRouter } from "next/router"
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart()
+  const router = useRouter()
 
   const handleAdd = () => {
     addToCart(product)
 
-    // 🔊 Optional feedback sound (place "cart-add.mp3" in public/)
+    // Optional sound effect
     const sound = new Audio("/cart-add.mp3")
     sound.play().catch(() => {})
+
+    // ✅ Redirect to Cart page after 1 second
+    setTimeout(() => {
+      router.push("/cart")
+    }, 1000)
   }
 
   return (
